@@ -39,6 +39,15 @@ def draw (frame : Frame) (state : GameState) : Frame := Id.run do
   let boardY := startY + 2
   buf := renderBoard buf state boardX boardY
 
+  -- Animation layers (rendered on top of board)
+  buf := renderDropTrail buf state.anim boardX boardY
+  buf := renderLockFlash buf state.anim boardX boardY
+  buf := renderClearingRows buf state.anim boardX boardY
+
+  -- Game over fill (before overlay text)
+  if state.gameOver then
+    buf := renderGameOverFill buf state.anim boardX boardY
+
   -- Sidebar
   let sideX := startX + boardScreenWidth + 2
   let sideY := boardY

@@ -72,11 +72,16 @@ def Board.removeRow (b : Board) (y : Nat) : Board :=
 def Board.clearLines (b : Board) : Board × Nat := Id.run do
   let mut board := b
   let mut cleared := 0
-  -- Check from bottom to top using a for loop
-  for y in (List.range boardHeight).reverse do
+  -- Check from top to bottom so row shifts don't skip rows
+  -- After removing a row, stay at the same y since rows shifted down
+  let mut y := 0
+  while y < boardHeight do
     if board.isRowComplete y then
       board := board.removeRow y
       cleared := cleared + 1
+      -- Don't increment y - check same position again since rows shifted
+    else
+      y := y + 1
   (board, cleared)
 
 end Blockfall.Core

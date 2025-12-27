@@ -195,4 +195,85 @@ def renderPaused (buf : Buffer) (x y width height : Nat) : Buffer := Id.run do
 
   result
 
+/-- Character for trail rendering -/
+def trailBlock : String := "░░"
+
+/-- Render hard drop trail animation -/
+def renderDropTrail (buf : Buffer) (anim : AnimState) (boardX boardY : Nat) : Buffer := Id.run do
+  if anim.dropTrailTimer == 0 then return buf
+
+  let mut result := buf
+
+  -- Fade based on timer: 4=bright, 3=medium, 2=dim, 1=very dim
+  let intensity := anim.dropTrailTimer
+  let style := if intensity >= 3 then
+    Style.default.withFg anim.dropTrailColor
+  else
+    Style.default.withFg ghostColor
+
+  -- Render the piece shape at intervals from startY to endY-1
+  -- (endY is where the piece landed, don't draw there)
+  for y in List.range ((anim.dropTrailEndY - anim.dropTrailStartY).toNat) do
+    let trailY := anim.dropTrailStartY + y
+    if trailY >= 0 && trailY < boardHeight then
+      for cell in anim.dropTrailCells do
+        let cellX := anim.dropTrailX + cell.x
+        let cellY := trailY + cell.y
+        if cellX >= 0 && cellX < boardWidth && cellY >= 0 && cellY < boardHeight then
+          let screenX := boardX + 1 + cellX.toNat * 2
+          let screenY := boardY + 1 + cellY.toNat
+          result := result.writeString screenX screenY trailBlock style
+
+  result
+
+/-- Render lock flash animation -/
+def renderLockFlash (buf : Buffer) (anim : AnimState) (boardX boardY : Nat) : Buffer := Id.run do
+  if anim.lockFlashTimer == 0 then return buf
+
+  let mut result := buf
+
+  -- Flash with white color
+  let flashStyle := Style.default.withFg .white |>.withModifier { bold := true }
+
+  for cell in anim.lockFlashCells do
+    if cell.y >= 0 && cell.y < boardHeight && cell.x >= 0 && cell.x < boardWidth then
+      let screenX := boardX + 1 + cell.x.toNat * 2
+      let screenY := boardY + 1 + cell.y.toNat
+      result := result.writeString screenX screenY filledBlock flashStyle
+
+  result
+
+/-- Render line clear flash animation -/
+def renderClearingRows (buf : Buffer) (anim : AnimState) (boardX boardY : Nat) : Buffer := Id.run do
+  if anim.clearTimer == 0 then return buf
+
+  let mut result := buf
+
+  -- Flash: white on odd timer values, don't render (show original) on even
+  if anim.clearTimer % 2 == 1 then
+    let flashStyle := Style.default.withFg .white |>.withModifier { bold := true }
+    for row in anim.clearingRows do
+      if row < boardHeight then
+        let screenY := boardY + 1 + row
+        for col in List.range boardWidth do
+          let screenX := boardX + 1 + col * 2
+          result := result.writeString screenX screenY filledBlock flashStyle
+
+  result
+
+/-- Render game over fill animation -/
+def renderGameOverFill (buf : Buffer) (anim : AnimState) (boardX boardY : Nat) : Buffer := Id.run do
+  let mut result := buf
+
+  -- Fill from bottom (boardHeight - 1) up to gameOverFillRow
+  let fillStyle := Style.default.withFg ghostColor
+  for row in List.range boardHeight do
+    if row > anim.gameOverFillRow then
+      let screenY := boardY + 1 + row
+      for col in List.range boardWidth do
+        let screenX := boardX + 1 + col * 2
+        result := result.writeString screenX screenY filledBlock fillStyle
+
+  result
+
 end Blockfall.UI
