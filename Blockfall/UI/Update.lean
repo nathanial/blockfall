@@ -48,7 +48,7 @@ def update (state : GameState) (event : Option Event) : GameState × Bool := Id.
       (softDrop newState, false)
     | .up | .char 'w' | .char 'W' =>
       (rotate newState, false)
-    | .char ' ' =>
+    | .space =>
       (hardDrop newState, false)
     | _ => (newState, false)
 
