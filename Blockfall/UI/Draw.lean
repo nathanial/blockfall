@@ -19,7 +19,7 @@ def draw (frame : Frame) (state : GameState) : Frame := Id.run do
   let mut buf := frame.buffer
 
   -- Clear buffer
-  buf := buf.fill (Cell.mk ' ' Style.default)
+  buf := buf.fill Cell.empty
 
   -- Calculate layout
   let boardScreenWidth := boardWidth * 2 + 2
