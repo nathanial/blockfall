@@ -5,7 +5,7 @@ package blockfall where
   precompileModules := true
 
 require terminus from git "https://github.com/nathanial/terminus" @ "v0.0.2"
-require crucible from git "https://github.com/nathanial/crucible" @ "v0.0.3"
+require crucible from git "https://github.com/nathanial/crucible" @ "v0.0.7"
 
 @[default_target]
 lean_lib Blockfall where
