@@ -245,9 +245,9 @@ test "Pause toggle" := do
 -- Property-based tests for line clearing
 
 /-- Generate a random board with some filled rows -/
-def genRandomBoard (seed : UInt64) : Board := Id.run do
+def genRandomBoard (seedVal : UInt64) : Board := Id.run do
   let mut board := Board.empty
-  let mut rng := seed
+  let mut rng := seedVal
   for y in List.range boardHeight do
     -- Decide if this row should be filled (50% chance)
     rng := rng * 6364136223846793005 + 1442695040888963407
@@ -265,27 +265,27 @@ def genRandomBoard (seed : UInt64) : Board := Id.run do
 
 test "Property: clearLines preserves board height" := do
   -- Test with multiple random seeds
-  for seed in [1, 42, 123, 9999, 0xDEADBEEF] do
-    let board := genRandomBoard seed
+  for seedVal in [1, 42, 123, 9999, 0xDEADBEEF] do
+    let board := genRandomBoard seedVal
     let (cleared, _) := board.clearLines
     ensure (cleared.cells.size == boardHeight)
-      s!"Board height should be preserved (seed {seed})"
+      s!"Board height should be preserved (seed {seedVal})"
 
 test "Property: no complete rows after clearing" := do
-  for seed in [1, 42, 123, 9999, 0xDEADBEEF, 7777, 12345] do
-    let board := genRandomBoard seed
+  for seedVal in [1, 42, 123, 9999, 0xDEADBEEF, 7777, 12345] do
+    let board := genRandomBoard seedVal
     let (cleared, _) := board.clearLines
     let remainingComplete := cleared.completeRows
     ensure remainingComplete.isEmpty
-      s!"No complete rows should remain after clearing (seed {seed})"
+      s!"No complete rows should remain after clearing (seed {seedVal})"
 
 test "Property: cleared count matches complete rows" := do
-  for seed in [1, 42, 123, 9999, 0xDEADBEEF] do
-    let board := genRandomBoard seed
+  for seedVal in [1, 42, 123, 9999, 0xDEADBEEF] do
+    let board := genRandomBoard seedVal
     let completeBefore := board.completeRows.length
     let (_, count) := board.clearLines
     ensure (count == completeBefore)
-      s!"Cleared count should match complete rows (seed {seed})"
+      s!"Cleared count should match complete rows (seed {seedVal})"
 
 test "Property: rows with gaps are never cleared" := do
   -- Create a board with one complete row and one row with gap
