@@ -343,8 +343,6 @@ test "Property: 4 complete rows (Tetris) cleared correctly" := do
       ensure (cleared.get x y == none)
         s!"Row {y} col {x} should be empty after Tetris clear"
 
-#generate_tests
-
 end Blockfall.Tests
 
 def main : IO UInt32 := do
